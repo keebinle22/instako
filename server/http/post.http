@@ -1,0 +1,54 @@
+@URL = http://localhost:8080/post
+
+//get all
+GET {{URL}} HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MyIsImlhdCI6MTczNzM5ODI4OX0.ZaJ649aorsH6i7Q-tDbrWhU_wPR1-AV4RO7g0d2x_M4
+###
+//get post
+GET {{URL}}/6768d070d250b9230025598a HTTP/1.1
+###
+//get post by user
+GET {{URL}}/user/6768771f709b3345cf9924bf HTTP/1.1
+###
+//add post
+POST {{URL}} HTTP/1.1
+Content-Type: application/json
+
+{
+    "type": "IMAGE",
+    "key": "adf",
+    "likes": 1,
+    "description": "adf",
+    "comments": ["asdf", "asdf"],
+    "date": "2024-01-23",
+    "userID": "asdf"
+}
+###
+PUT {{URL}}/update HTTP/1.1
+Content-Type: application/json
+
+{
+  "postID": "6768d070d250b9230025598a",
+  "type": "IMAGE",
+  "key": "asdasdfasdf",
+  "likes": 1,
+  "description": "asdfasdfasdfdas",
+  "comments": [
+    "asdf",
+    "asdf",
+    "asdf"
+  ],
+  "date": "2024-01-23T00:00:00.000+00:00",
+  "userID": "asdfasdfasdfasdf"
+}
+###
+//delete
+DELETE {{URL}}/delete HTTP/1.1
+Content-Type: application/json 
+
+{
+  "postID": "676ce3db1ece932efdea25af"
+}
+###
+//delete by user
+DELETE {{URL}}/deletebyuser/6768771f709b3345cf9924bf

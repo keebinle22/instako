@@ -1,0 +1,4 @@
+@URL = http://localhost:8080
+
+//Reset data
+DELETE {{URL}}/reset HTTP/1.1

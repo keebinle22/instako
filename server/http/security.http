@@ -1,0 +1,21 @@
+@URL = http://localhost:8080
+
+GET {{URL}}/get HTTP/1.1
+###
+//register
+POST {{URL}}/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "test3",
+    "password": "pw3"
+}
+###
+//login
+POST {{URL}}/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test"
+}
