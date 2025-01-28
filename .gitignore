@@ -170,8 +170,8 @@ fabric.properties
 # React Router
 /.react-router/
 /build/
-package.json
-package-lock.json
+# package.json
+# package-lock.json
 
 .DS_*
 *.log
