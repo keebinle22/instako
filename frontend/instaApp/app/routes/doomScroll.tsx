@@ -53,10 +53,10 @@ export async function loader({params, request}: Route.LoaderArgs){
         request.headers.get("Cookie")
     );
     if (!session.has("token")) {
-        console.log("LOL")
         return redirect("/");
     }
-    const url = "http://localhost:8080/post";
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/post`;
     const token= session.get("token");
     try {
         const resp = await fetch(url, {

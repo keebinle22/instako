@@ -97,8 +97,8 @@ export async function action({request,}: Route.ActionArgs) {
 }
 
 async function validateCredentials(username: FormDataEntryValue | null, password: FormDataEntryValue | null) {
-    
-    const url = "http://localhost:8080/login";
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/login`;
     const body = {
         username: username,
         password: password
@@ -124,7 +124,7 @@ async function validateCredentials(username: FormDataEntryValue | null, password
 
 
 async function getAccountDetails(username: FormDataEntryValue | null, token: string) {
-    const url = "http://localhost:8080";
+    const url = process.env.REACT_APP_API_URL;
     try {
         const resp = await fetch(url + `/accountDetails/${username}`, {
             headers: {"Authorization": `Bearer ${token}`}

@@ -46,7 +46,8 @@ export default function UploadFile(){
 }
 
 export async function uploadPost(params: any, token: String) {
-    const url = "http://localhost:8080/post";
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/post`;
     const body = {
         "type": params.type,
         "key": params.key,
@@ -110,7 +111,7 @@ export async function action({request,}: Route.ActionArgs){
                 await pUpload3.done();
                 return fileUpload.name;
             } catch (e){
-                console.log(e);
+                console.error(e);
             }
 
         }

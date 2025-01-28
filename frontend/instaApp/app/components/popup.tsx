@@ -85,7 +85,8 @@ export default function Popup({loaderData}: Route.ComponentProps){
 }
 
 export async function getPostById(id: any, token: String){
-    const url = `http://localhost:8080/post/${id}`;
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/post/${id}`;
     try {
         const resp = await fetch(url, {
             headers: {"Authorization": `Bearer ${token}`}
@@ -108,7 +109,6 @@ export async function loader({params, request}: Route.LoaderArgs){
         request.headers.get("Cookie")
     );
     if (!session.has("token")) {
-        console.log("LOL")
         return redirect("/");
     }
     const token = session.get("token");
@@ -127,27 +127,29 @@ export async function action({params, request,}: Route.ActionArgs){
         // return redirect("delete")
     }
     else {
-    const url = "http://localhost:8080/post/update/description";
-    const body = {
-        "postID": params.page,
-        "description": formData.get("edit")
-    }
-    let result = {ok: "", error: ""};
-    try {
-        const resp = await fetch(url, {
-            headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`},
-            method: "PUT",
-            body: JSON.stringify(body)
-        })
-        switch(resp.status){
-            case 204: 
-                result.ok = "Success";
-                break;
-            default:
-                result.error = `Response Status: ${resp.status}`;
+        const apiURL = process.env.REACT_APP_API_URL;
+        const url = `${apiURL}/post/update/description`;
+        const body = {
+            "postID": params.page,
+            "description": formData.get("edit")
         }
-        return result;
-    } catch(e){
-        console.error(e);
-    }}
+        let result = {ok: "", error: ""};
+        try {
+            const resp = await fetch(url, {
+                headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`},
+                method: "PUT",
+                body: JSON.stringify(body)
+            })
+            switch(resp.status){
+                case 204: 
+                    result.ok = "Success";
+                    break;
+                default:
+                    result.error = `Response Status: ${resp.status}`;
+            }
+            return result;
+        } catch(e){
+            console.error(e);
+        }
+    }
 }

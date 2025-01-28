@@ -1,6 +1,8 @@
-@URL = http://localhost:8080
+# @URL = http://localhost:80
+# @URL = http://184.72.160.8:80
+@URL = http://Insta-ko-app-env.eba-hivvfjqc.us-east-1.elasticbeanstalk.com:80
 
-GET {{URL}}/get HTTP/1.1
+GET {{URL}}/get 
 ###
 //register
 POST {{URL}}/register HTTP/1.1

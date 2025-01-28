@@ -1,9 +1,7 @@
 com\insta\InstaApp\controller\ErrorResponse.class
 com\insta\InstaApp\exception\NotFoundException.class
-com\insta\InstaApp\repository\PersonRepoInterface.class
 com\insta\InstaApp\service\AccountService.class
 com\insta\InstaApp\service\Result.class
-com\insta\InstaApp\model\Person.class
 com\insta\InstaApp\service\PostService.class
 com\insta\InstaApp\repository\AccountRepo.class
 com\insta\InstaApp\security\WebSecurityConfig.class

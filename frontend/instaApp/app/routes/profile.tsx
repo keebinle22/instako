@@ -15,9 +15,7 @@ export default function Profile({loaderData}: Route.ComponentProps){
     let fetcher = useFetcher();
     let navigate = useNavigate();
     let errors = fetcher.data?.errors;
-    // posts.map((x:any, idx: number) => console.log(x.key))
     const handleOpen = (evt: any) => {
-        console.log(evt.currentTarget.getAttribute("data-idx"))
         setCurPost(evt.currentTarget.getAttribute("data-idx"));
     }
     const handleClose = (evt: any) => {
@@ -120,8 +118,8 @@ export default function Profile({loaderData}: Route.ComponentProps){
     )
 }
 export async function getProfile(id: any, token: String){
-    const url = "http://localhost:8080/user/username/";
-    console.log(token)
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/user/username/`;
     try {
         const resp = await fetch(url + `${id}`, {
             headers: { "Authorization": `Bearer ${token}` },
@@ -136,13 +134,13 @@ export async function getProfile(id: any, token: String){
 
     }
     catch (e){
-        console.log("asdf")
         console.error(e);
     }
 }
 
 export async function getProfileById(id: any, token: String) {
-    const url = "http://localhost:8080/user/";
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/user/`;
     try {
         const resp = await fetch(url + `${id}`, {
             headers: {"Authorization": `Bearer ${token}`}
@@ -161,7 +159,7 @@ export async function getProfileById(id: any, token: String) {
 }
 
 export async function getProfileByUsername(username: String, token: String){
-    const url = "http://localhost:8080";
+    const url = process.env.REACT_APP_API_URL;
     try {
         const resp = await fetch(url + `/user/username/${username}`, {
             headers: { "Authorization": `Bearer ${token}` }
@@ -184,7 +182,6 @@ export async function loader({params, request}: Route.LoaderArgs){
         request.headers.get("Cookie")
     );
     if (!session.has("token")) {
-        console.log("LOL")
         // Redirect to the home page if they are already signed in.
         return redirect("/");
     }
@@ -197,7 +194,8 @@ export async function loader({params, request}: Route.LoaderArgs){
         return result;
     }
     let post;
-    const url = "http://localhost:8080/post/user/" + profile.userID;
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/post/user/` + profile.userID;
     try {
         const resp = await fetch(url, {
             headers: { "Authorization": `Bearer ${token}` },
@@ -250,7 +248,8 @@ export async function action({params, request,}: Route.ActionArgs){
             result.error = "Error with deletion.";
             return result;
         }
-        const url = `http://localhost:8080/post/delete`;
+        const apiURL = process.env.REACT_APP_API_URL;
+        const url = `${apiURL}/post/delete`;
         const body = {
             userID: params.user,
             postID: formData.get("delete")
@@ -273,7 +272,6 @@ export async function action({params, request,}: Route.ActionArgs){
             console.error(e);
         }
     }
-    console.log(result)
     return result;
     // const url = "http://localhost:8080/post/update/description/";
     // const body = {

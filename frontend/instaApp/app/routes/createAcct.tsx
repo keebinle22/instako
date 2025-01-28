@@ -5,7 +5,6 @@ export default function CreateAcct({ loaderData, actionData}: Route.ComponentPro
     const loader = loaderData;
     const fetcher = useFetcher();
     const error = fetcher.data?.error;
-    console.log(error);
     return(
         <>
         <div className="container">
@@ -73,7 +72,8 @@ export async function action({ params, request, }: Route.ActionArgs) {
         error.match = "Password is not matching.";
         return data({ error }, { status: 400 });
     }
-    const url = `http://localhost:8080/register/${user}`;
+    const apiURL = process.env.REACT_APP_API_URL;
+    const url = `${apiURL}/register/${user}`;
     const body = {
         username: acct,
         password: pw,
