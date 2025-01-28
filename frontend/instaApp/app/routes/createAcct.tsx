@@ -1,4 +1,4 @@
-import { data, Form, redirect, useFetcher } from "react-router";
+import { data, redirect, useFetcher } from "react-router";
 import type { Route } from "../+types/root";
 
 export default function CreateAcct({ loaderData, actionData}: Route.ComponentProps){
