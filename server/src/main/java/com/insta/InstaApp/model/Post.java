@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Document
 @AllArgsConstructor
@@ -20,8 +21,9 @@ public class Post {
     private String key;
     private int likes;
     private String description;
-    private List<String> comments;
+    private Map<String, List<String>> comments;
     private Date date;
     private String userID;
+    private List<String> likedBy;
 
 }

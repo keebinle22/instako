@@ -1,9 +1,8 @@
 /* @tailwind base; */
 /* @tailwind components; */
 /* @tailwind utilities; */
-div.solid{
-    border-top: 3px solid black;
-    margin-top: 5%;
+.border-width{
+    border-width: 20px;
 }
 div.postGrid{
     display: grid;

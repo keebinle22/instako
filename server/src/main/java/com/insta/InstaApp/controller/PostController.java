@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/post")
 public class PostController {
@@ -49,6 +48,15 @@ public class PostController {
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
     }
 
+    @PostMapping("/addComment/{userID}")
+    public ResponseEntity<Object> addComment(@PathVariable String userID, @RequestBody Post post){
+        Result<Post> result = postService.addComment(post, userID);
+        if (!result.isSuccess()){
+            return ErrorResponse.build(result);
+        }
+        return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
     @PutMapping("/update")
     public ResponseEntity<Object> updatePost(@RequestBody Post post){
         Result<Post> result = postService.updatePost(post);
@@ -62,6 +70,15 @@ public class PostController {
     public ResponseEntity<Object> updateDescription(@RequestBody Post post){
 
         Result<Post> result = postService.updateDescription(post);
+        if (result.isSuccess()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return ErrorResponse.build(result);
+    }
+
+    @PutMapping("/update/likes/{userID}")
+    public ResponseEntity<Object> updateLikes(@PathVariable String userID, @RequestBody Post post){
+        Result<Post> result = postService.updateLikedBy(post, userID);
         if (result.isSuccess()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

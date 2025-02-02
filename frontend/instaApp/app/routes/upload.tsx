@@ -1,30 +1,43 @@
-import { redirect, useFetcher } from "react-router";
-import type { Route } from "../+types/root";
-import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
 import { S3Client } from "@aws-sdk/client-s3";
-import { fromIni } from "@aws-sdk/credential-providers";
+import * as cp from "@aws-sdk/credential-providers";
 import { Upload } from "@aws-sdk/lib-storage";
-import { getSession } from "../session/sessions.server";
+import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
+import { data, redirect, useFetcher } from "react-router";
+import type { Route } from "../+types/root";
 import { getProfileByUsername } from "./profile";
+import { commitSession, getSession } from "../session/sessions.server";
+import { useState } from "react";
 
 export default function UploadFile(){
     let fetcher = useFetcher();
+    const [fileName, setFileName] = useState("");
+
+    const handleFileChange = (evt: any) => {
+        const file = evt.target.files ? evt.target.files[0] : null;
+        setFileName(file ? file.name : 'Choose File')
+    }
     return(
         <>
-        <div>
+        <div className="container">
                 <div>
-                    <fetcher.Form method="post" encType="multipart/form-data">
-                        <label>Upload</label>
-                        <p>
-                            <input type="file" name="image" accept="image/*" />
-                        </p>
-                        <p>
-                            <label>Caption: </label>
-                            <input type="text" name="caption" />
-                        </p>
-                        <p>
-
-                        </p>
+                    <fetcher.Form method="post" encType="multipart/form-data" className="m-4 d-flex flex-column align-items-center">
+                    <h2 className="mt-2 mb-5"><u>Upload</u></h2>
+                    <div className="form-group row">
+                        <div className="col-auto">
+                            <div className="custom-file">
+                                <input type="file" className="custom-file-input" name="image" accept="image/*" id="customFile" onChange={handleFileChange}/>
+                                <label className="custom-file-label" htmlFor="customFile">{fileName || "Choose File"}</label>
+                                <div className="d-flex flex-column align-items-center">
+                                    <small>JPG and PNG only</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="form-group row mt-2 mb-2 w-50">
+                        <div className="col-12">
+                            <textarea className="form-control" id="caption" name="caption" placeholder="Caption"/>
+                        </div>
+                    </div>
                         {fetcher.state !== "idle" && <p>Saving...</p>}
                         {fetcher.data?.error && (
                             <p style={{ color: "red" }}>
@@ -36,8 +49,12 @@ export default function UploadFile(){
                                 {fetcher.data.ok}
                             </p>
                         )}
-                        <button className="btn" type="submit" name="upload">Upload</button>
-                        <button className="btn" type="submit" name="delete">Delete</button>
+                        <div className="form-group row">
+                            <div className="col-auto">
+                                <button className="btn btn-primary mr-2" type="submit" name="upload">Upload</button>
+                                <button className="btn btn-secondary ml-2" type="submit" name="cancel">Cancel</button>
+                            </div>
+                        </div>
                     </fetcher.Form>
                 </div>
         </div>
@@ -53,8 +70,9 @@ export async function uploadPost(params: any, token: String) {
         "key": params.key,
         "likes": 0,
         "description": params.caption,//
-        "comments": [],
+        "comments": {},
         "date": new Date().toJSON(),
+        "likedBy": [],
         "userID": params.user
     }
     let result = { ok: "", error: "" };
@@ -66,7 +84,6 @@ export async function uploadPost(params: any, token: String) {
         })
         switch (resp.status) {
             case 201:
-                console.log("success")
                 result.ok = "Success";
                 break;
             default:
@@ -78,22 +95,31 @@ export async function uploadPost(params: any, token: String) {
     }
 }
 
-export async function action({request,}: Route.ActionArgs){
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
-    if (!session.has("token")) {
-        return redirect("/login");
+export async function loader({request}: Route.LoaderArgs){
+    const session = await getSession(request.headers.get("Cookie"));
+    if (!session.has("userID")) {
+        return redirect("/home")
     }
+    return data(
+        { error: session.get("error") },
+        {
+            headers: {
+                "Set-Cookie": await commitSession(session),
+            },
+        }
+    );
+}
+
+export async function action({request, params}: Route.ActionArgs){
+    const session = await getSession(request.headers.get("Cookie"));
     const token = session.get("token");
     const profile = await getProfileByUsername(session.get("userID")!.toString(), token!)
     const uploadHandler = async (fileUpload: FileUpload) => {
         if (fileUpload.fieldName === "image"){
             const client = new S3Client({
-                credentials: fromIni()
+                credentials: cp.fromIni()
             });
             const bucketName = 'kev-insta-bucket';
-
             try{
                 var pUpload3 = new Upload({
                     client: client,
@@ -120,25 +146,28 @@ export async function action({request,}: Route.ActionArgs){
         request,
         uploadHandler
     );
+    if (formData.get("upload") === null){
+        return redirect("/home");
+    }
     const file = formData.get("image");
     //input image + caption
     //if not .png or .jpeg -> video else image
     let result;
-    if (formData.get("upload") !== null){ //upload
-        const caption = String(formData.get("caption"));
-        const key = String(formData.get("image"));
-        let type = (key.toLowerCase().endsWith('.png') ||key.toLowerCase().endsWith('.jpg')) ? 'IMAGE' : 'VIDEO';
-        const input = {
-            key: key,
-            caption: caption,
-            type: type,
-            user: profile.userID
-        }
-        result = await uploadPost(input, token!);
-
-    } 
-    else{ //delete function
-
+    const caption = String(formData.get("caption"));
+    const key = String(formData.get("image"));
+    if (key === "null"){
+        return { ok: "", error: "Please upload an image." };
     }
-    return {ok: "", error: ""};
+    let type = (key.toLowerCase().endsWith('.png') ||key.toLowerCase().endsWith('.jpg')) ? 'IMAGE' : 'VIDEO';
+    const input = {
+        key: key,
+        caption: caption,
+        type: type,
+        user: profile.userID
+    }
+    result = await uploadPost(input, token!);
+    if (result?.ok === ''){
+        return result;
+    }
+    return redirect(`/profile/${session.get("userID")}`);
 }

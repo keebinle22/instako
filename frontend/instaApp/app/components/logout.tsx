@@ -3,12 +3,9 @@ import type { Route } from "../+types/root";
 import { destroySession, getSession } from "../session/sessions.server";
 
 
-export async function action({
-    request,
-}: Route.ActionArgs) {
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
+export async function action({request,}: Route.ActionArgs) {
+    const session = await getSession(request.headers.get("Cookie"));
+
     return redirect("/login", {
         headers: {
             "Set-Cookie": await destroySession(session),

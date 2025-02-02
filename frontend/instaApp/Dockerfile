@@ -4,7 +4,7 @@ WORKDIR /app
 RUN npm ci
 
 FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
+COPY ./package*.json package-lock.json /app/
 WORKDIR /app
 RUN npm ci --omit=dev
 
@@ -19,4 +19,5 @@ COPY ./package.json package-lock.json /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
 WORKDIR /app
+RUN npm install
 CMD ["npm", "run", "start"]

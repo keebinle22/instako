@@ -1,10 +1,9 @@
 import { redirect, useFetcher, useNavigate, useParams } from "react-router";
 import type { Route } from "../+types/root";
-import { getPostById } from "./popup";
 import { getSession } from "../session/sessions.server";
+import { getPostById } from "./popup";
 
 export default function EditPost({loaderData}: Route.ComponentProps){
-    console.log("SCREAM")
     let post:any = loaderData;
     let param = useParams();
     let fetcher = useFetcher();
@@ -28,11 +27,9 @@ export default function EditPost({loaderData}: Route.ComponentProps){
 }
 
 export async function loader({params, request}: Route.LoaderArgs){
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
-    if (!session.has("token")) {
-        return redirect("/");
+    const session = await getSession(request.headers.get("Cookie"));
+    if (!session.has("userID")) {
+        return redirect("/home")
     }
     const token = session.get("token");
     const result = await getPostById(params.page, token!);

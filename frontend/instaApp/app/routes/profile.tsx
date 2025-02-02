@@ -1,10 +1,10 @@
-import { Form, Link, Outlet, redirect, useFetcher, useNavigate, useParams } from "react-router";
-import type { Route } from "./+types/profile";
-import { useEffect, useState } from "react";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { fromIni } from "@aws-sdk/credential-providers";
+import * as cp from "@aws-sdk/credential-providers";
+import { useEffect, useState } from "react";
+import { Link, Outlet, redirect, useFetcher, useNavigate } from "react-router";
 import { getPostById } from "../components/popup";
 import { getSession } from "../session/sessions.server";
+import type { Route } from "./+types/profile";
 
 
 export default function Profile({loaderData}: Route.ComponentProps){
@@ -45,15 +45,20 @@ export default function Profile({loaderData}: Route.ComponentProps){
             : 
             <div>   
                 <div className="d-flex flex-column mt-5 mb-5 pt-3 pb-3">
-                    <div>
-                        <div>User: {profile.username}</div>
-                        <div>
-                            <p>Description: {profile.description}</p>
-                        </div>
+                    <div className="align-self-center">
+                        <h1>{profile.username}</h1>
+                    </div>
+                    <div className="align-self-center">
+                        <p>{profile.description}</p>
                     </div>
                 </div>
                 <div className="container border-top border-dark">
-                    {posts.length === 0 ? <div className="d-flex justify-content-center mt-3"><h2>No Posts</h2></div> : 
+                    {posts.length === 0 ? 
+                    <div className="d-flex flex-column align-items-center mt-4 mb-5">
+                        <h3>No Posts</h3>
+                        <small>Navigate to 'Upload' tab to upload images</small>  
+                    </div> 
+                    : 
                     <div className="postGrid">
                         {posts.map((p: any, idx: number) => {
                         return <div key={idx} className="d-flex flex-column align-self-center w-100">
@@ -178,12 +183,9 @@ export async function getProfileByUsername(username: String, token: String){
 }
 export async function loader({params, request}: Route.LoaderArgs){
     const result: any = {}
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
-    if (!session.has("token")) {
-        // Redirect to the home page if they are already signed in.
-        return redirect("/");
+    const session = await getSession(request.headers.get("Cookie"));
+    if (!session.has("userID")) {
+        return redirect("/home")
     }
     
     const token = session.get("token");
@@ -221,19 +223,15 @@ export async function loader({params, request}: Route.LoaderArgs){
 
 export async function action({params, request,}: Route.ActionArgs){
     const formData = await request.formData();
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
-    if (!session.has("token")) {
-        return redirect("/");
-    }
+    const session = await getSession(request.headers.get("Cookie"));
     const token = session.get("token");
-    let post = await getPostById(formData.get("delete"), token!);
-    let result = {ok: "", error: ""};
-    //DELETE
-    if (formData.get("delete") == ""){
+    console.log("afasdfasdf")
+    if (formData.get("delete") !== null){
+        let post = await getPostById(formData.get("delete"), token!);
+        let result = {ok: "", error: ""};
+        //DELETE
         const client = new S3Client({
-            credentials: fromIni(),
+            credentials: cp.fromIni(),
         });
         const bucketName = 'kev-insta-bucket';
         const input = {
@@ -271,29 +269,7 @@ export async function action({params, request,}: Route.ActionArgs){
         } catch(e){
             console.error(e);
         }
+    
+        return result;
     }
-    return result;
-    // const url = "http://localhost:8080/post/update/description/";
-    // const body = {
-    //     "postID": params.user,
-    //     "description": formData.get("desc")
-    // }
-    // let result = {ok: "", error: ""};
-    // try {
-    //     const resp = await fetch(url, {
-    //         headers: {"Content-Type": "application/json"},
-    //         method: "PUT",
-    //         body: JSON.stringify(body)
-    //     })
-    //     switch(resp.status){
-    //         case 204: 
-    //             result.ok = "Success";
-    //             break;
-    //         default:
-    //             result.error = `Response Status: ${resp.status}`;
-    //     }
-    //     return result;
-    // } catch(e){
-    //     console.error(e);
-    // }
 }

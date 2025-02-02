@@ -2,7 +2,7 @@
 
 //get all
 GET {{URL}} HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MyIsImlhdCI6MTczNzM5ODI4OX0.ZaJ649aorsH6i7Q-tDbrWhU_wPR1-AV4RO7g0d2x_M4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MSIsImlhdCI6MTczODUzNTA1Mn0.cd9aMmFgGPxH4HvB-GD7Y8a34VhZA1ceTHJXtiSoC-k
 ###
 //get post
 GET {{URL}}/6768d070d250b9230025598a HTTP/1.1
@@ -24,6 +24,7 @@ Content-Type: application/json
     "userID": "asdf"
 }
 ###
+//update post
 PUT {{URL}}/update HTTP/1.1
 Content-Type: application/json
 
@@ -40,6 +41,28 @@ Content-Type: application/json
   ],
   "date": "2024-01-23T00:00:00.000+00:00",
   "userID": "asdfasdfasdfasdf"
+}
+###
+//update likes
+PUT {{URL}}/update/likes/679d82e0ec2a0f548b04ab9d HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MSIsImlhdCI6MTczODQ0NTk4NH0.l6OI19RrOn-2SCUQlghRE_RS0LBc3FJnjyh_0p3Kp3g
+Content-Type: application/json
+
+{
+  "postID": "679e902796ec9f6d4b7681e5",
+  "likes": 1
+}
+###
+//add comment
+POST {{URL}}/addComment/679d82e0ec2a0f548b04ab9d HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MSIsImlhdCI6MTczODQ2MzcxNX0.qCNkYNHor8e9iyiaaR8Edwp1OfO4E9DxsNI5fvv5Hvo
+Content-Type: application/json
+
+{
+  "postID": "679ec7954d8b0b5cfaa9e3f7",
+  "comments": {
+    "679d82e0ec2a0f548b04ab9d": ["i am a comment"]
+  }
 }
 ###
 //delete

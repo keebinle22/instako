@@ -1,7 +1,7 @@
 import { data, redirect, useFetcher } from "react-router";
 import type { Route } from "../+types/root";
 
-export default function CreateAcct({ loaderData, actionData}: Route.ComponentProps){
+export default function CreateAcct({ loaderData,}: Route.ComponentProps){
     const loader = loaderData;
     const fetcher = useFetcher();
     const error = fetcher.data?.error;
@@ -18,12 +18,12 @@ export default function CreateAcct({ loaderData, actionData}: Route.ComponentPro
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Enter Password</label>
-                        <input type="text" className="form-control" id="password1" name="password1" placeholder="Password" required/>
+                        <input type="password" className="form-control" id="password1" name="password1" placeholder="Password" required/>
                         {error?.pw1 ? <div className="alert alert-danger w-50 mt-2"><em>{error.pw1}</em></div> : null}
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Retype Password</label>
-                        <input type="text" className="form-control" id="password2" name="password2" placeholder="Retype Password" required/>
+                        <input type="password" className="form-control" id="password2" name="password2" placeholder="Retype Password" required/>
                         {error?.pw2 ? <div className="alert alert-danger w-50 mt-2"><em role="alert">{error.pw2}</em></div> : null}
                         {error?.match ? <div className="alert alert-danger w-50 mt-2"><em role="alert">{error.match}</em></div> : null}
                     </div>
@@ -42,7 +42,7 @@ export default function CreateAcct({ loaderData, actionData}: Route.ComponentPro
     )
 }
 
-export async function action({ params, request, }: Route.ActionArgs) {
+export async function action({request,}: Route.ActionArgs) {
     const error:any = {};
     //blank user, pw1, pw2, acct
     //pw1 != pw2

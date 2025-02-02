@@ -1,12 +1,9 @@
-import { commitSession, getSession } from "../session/sessions.server";
-import type { Route } from "./+types/login";
 import { data, Form, redirect } from "react-router";
+import type { Route } from "./+types/login";
+import { commitSession, getSession } from "../session/sessions.server";
 
-export default function Login({
-    loaderData,
-}: Route.ComponentProps) {
-    const {error} = loaderData;
-
+export default function Login({actionData,}: Route.ComponentProps) {
+    const error = actionData;
     return (
         <div className="container">
             <div className="w-25 m-4">
@@ -34,15 +31,10 @@ export default function Login({
 }
 
 export async function loader({request,}: Route.LoaderArgs) {
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
-
-    if (session.has("token")) {
-        // Redirect to the home page if they are already signed in.
-        return redirect("/");
+    const session = await getSession(request.headers.get("Cookie"));
+    if (session.has("userID")){
+        return redirect("/home")
     }
-
     return data(
         { error: session.get("error") },
         {
@@ -54,40 +46,30 @@ export async function loader({request,}: Route.LoaderArgs) {
 }
 
 export async function action({request,}: Route.ActionArgs) {
+    const session = await getSession(request.headers.get("Cookie"));
+
     const form = await request.formData();
     if (form.get("cancel") === ""){
         return redirect("/");
     }
-    const session = await getSession(
-        request.headers.get("Cookie")
-    );
     const username = form.get("username");
     const password = form.get("password");
     const user = await validateCredentials(
         username,
         password
     );
-    if (user == null) {
+    if (user === null || user === undefined) {
         session.flash("error", "Invalid username/password");
-        
+
         // Redirect back to the login page with errors.
-        return redirect("/login", {
-            headers: {
-                "Set-Cookie": await commitSession(session),
-            },
-        });
+        return "Invalid Login"
     }
     const aDetails = await getAccountDetails(username, user.payload);
     if (aDetails == null){
-        session.flash("error", "Invalid user")
-        return redirect("/login", {
-            headers: {
-                "Set-Cookie": await commitSession(session),
-            },
-        });
+        return "Invalid User";
     }
-    session.set("token", user.payload);
     session.set("userID", aDetails.username);
+    session.set("token", user.payload);
     // Login succeeded, send them to the home page.
     return redirect("/home", {
         headers: {
@@ -139,4 +121,5 @@ async function getAccountDetails(username: FormDataEntryValue | null, token: str
         console.error(e);
     }
 }
+
 

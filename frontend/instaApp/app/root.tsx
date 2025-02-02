@@ -8,7 +8,7 @@ import {
   Outlet,
   redirect,
   Scripts,
-  ScrollRestoration,
+  ScrollRestoration
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossOrigin="anonymous"></link>      
         </head>
-      <body>
+      <body id="root">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -62,30 +62,22 @@ export default function App({loaderData,}: Route.ComponentProps) {
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse d-flex justify-content-end" id="navbarSupportedContent">
-          <div className="navbar-nav">
-            <Link to="/home" className="nav-item nav-link">Home</Link>
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <div className="navbar-nav d-flex align-items-end">
+            <Link to="/" className="nav-item nav-link">Main</Link>
             {loaderData.log ? 
             <>
+              <Link to="home" className="nav-item nav-link">Home</Link>
               <Link to={`profile/${loaderData.user}`} className="nav-item nav-link">Profile</Link>
               <Link to="upload" className="nav-item nav-link">Upload</Link>
+              <Form method="POST">
+                    <button type="submit" className="btn btn-link nav-item nav-link">Log Out</button>
+              </Form>
             </> : 
-            
             <>
             <Link to="create" className="nav-item nav-link">Create</Link>
             <Link to="login" className="nav-item nav-link">Login</Link>
             </>}
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Account</a>
-              <div className="dropdown-menu">
-                <a className="dropdown-item">temp</a>
-                {loaderData.log ? 
-                <Form method="POST">
-                  <button type="submit" className="dropdown-item">Logout</button>
-                </Form>
-                : <></>}
-              </div>
-            </li>
           </div>
         </div>
       </nav>
@@ -134,9 +126,8 @@ export function HydrateFallback() {
 }
 
 export async function action({request,}: Route.ActionArgs) {
-  const session = await getSession(
-    request.headers.get("Cookie")
-  );
+  const session = await getSession(request.headers.get("Cookie"));
+
   return redirect("/login", {
     headers: {
       "Set-Cookie": await destroySession(session),
@@ -146,16 +137,12 @@ export async function action({request,}: Route.ActionArgs) {
 
 export async function loader({ request, }: Route.LoaderArgs) {
   const result: any = {};
-  const session = await getSession(
-    request.headers.get("Cookie")
-  );
-
-  if (session.has("token")) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (session.has("userID")) {
     result.log = true;
     result.user = session.get("userID");
     return result;
   }
-
   return data(
     { error: session.get("error") },
     {
@@ -164,5 +151,5 @@ export async function loader({ request, }: Route.LoaderArgs) {
       },
     }
   );
+
 }
-//asdf
