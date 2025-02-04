@@ -1,14 +1,14 @@
 services:
   web:
     image: insta-frontend:latest
-    build: /frontend/instaApp
+    build: ./frontend/instaApp
     ports: 
       - "5173:3000"
     env_file:
-      - path: /frontend/instaApp/insta.env 
+      - path: ./frontend/instaApp/insta.env 
 
   backend:
-    build: server
+    build: ./server
     image: insta-backend:latest
     ports:
       - "8080:8080"
