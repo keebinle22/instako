@@ -179,4 +179,3 @@ logs
 **/*.backup.*
 **/*.back.*
 
-# .env
