@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Form, redirect, useFetcher, useNavigate, useParams } from "react-router";
 import type { Route } from "../+types/root";
 import { getSession } from "../session/sessions.server";
-import { getProfile } from "../routes/profile";
-import PostComponent from "./post";
+import { getProfile } from "./profile";
+import PostComponent from "../components/post";
 
 export default function Popup({loaderData}: Route.ComponentProps){
     let param = useParams();

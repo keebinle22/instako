@@ -16,6 +16,7 @@ com\insta\InstaApp\service\ResultType.class
 com\insta\InstaApp\controller\AccountController.class
 com\insta\InstaApp\model\UserPrincipal.class
 com\insta\InstaApp\repository\PostRepo.class
+com\insta\InstaApp\security\WebConfig.class
 com\insta\InstaApp\model\Account.class
 com\insta\InstaApp\model\MediaType.class
 com\insta\InstaApp\repository\UserRepo.class

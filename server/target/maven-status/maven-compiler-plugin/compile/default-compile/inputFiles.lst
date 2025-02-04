@@ -14,6 +14,7 @@ C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\ja
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\repository\PostRepo.java
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\repository\UserRepo.java
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\security\JwtFilter.java
+C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\security\WebConfig.java
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\security\WebSecurityConfig.java
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\service\AccountService.java
 C:\Users\kevin\Documents\Personal_Project\Insta\insta\instako\server\src\main\java\com\insta\InstaApp\service\JWTService.java

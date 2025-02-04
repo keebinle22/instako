@@ -2,7 +2,7 @@ import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import * as cp from "@aws-sdk/credential-providers";
 import { useEffect, useState } from "react";
 import { Link, Outlet, redirect, useFetcher, useNavigate } from "react-router";
-import { getPostById } from "../components/popup";
+import { getPostById } from "./popup";
 import { getSession } from "../session/sessions.server";
 import type { Route } from "./+types/profile";
 
@@ -231,7 +231,7 @@ export async function action({params, request,}: Route.ActionArgs){
         let result = {ok: "", error: ""};
         //DELETE
         const client = new S3Client({
-            credentials: cp.fromIni(),
+            // credentials: cp.fromIni(),
         });
         const bucketName = 'kev-insta-bucket';
         const input = {

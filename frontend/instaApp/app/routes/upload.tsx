@@ -117,7 +117,7 @@ export async function action({request, params}: Route.ActionArgs){
     const uploadHandler = async (fileUpload: FileUpload) => {
         if (fileUpload.fieldName === "image"){
             const client = new S3Client({
-                credentials: cp.fromIni()
+                // credentials: cp.fromIni()
             });
             const bucketName = 'kev-insta-bucket';
             try{
