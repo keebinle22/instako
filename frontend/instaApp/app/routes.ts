@@ -4,9 +4,7 @@ export default [
     index("routes/home.tsx"),
 
     route("profile/:user", "routes/profile.tsx", [
-        route(":page", "components/popup.tsx", [
-            route("edit", "components/editPost.tsx")
-        ]),
+        route(":page", "routes/popup.tsx"),
     ]),
     route("home", "routes/doomScroll.tsx"),
     route("upload", "routes/upload.tsx"),
