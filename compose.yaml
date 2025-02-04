@@ -5,7 +5,7 @@ services:
     ports: 
       - "5173:3000"
     env_file:
-      - path: /frontend/instaApp/.env 
+      - path: /frontend/instaApp/insta.env 
 
   backend:
     build: server
