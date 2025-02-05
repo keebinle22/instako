@@ -169,7 +169,7 @@ fabric.properties
 
 # React Router
 /.react-router/
-/build/
+# /build/
 package.json
 package-lock.json
 
