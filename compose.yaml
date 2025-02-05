@@ -6,9 +6,11 @@ services:
       - "5173:3000"
     env_file:
       - path: ./frontend/instaApp/insta.env 
+    restart: always
 
   backend:
     # build: ./server
     image: kevinle22/insta-backend:latest
     ports:
       - "8080:8080"
+    restart: always
