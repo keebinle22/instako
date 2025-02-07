@@ -13,7 +13,7 @@ import {
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
-// import { commitSession, destroySession, getSession } from "./session/sessions.server";
+import { commitSession, destroySession, getSession } from "./session/sessions.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -65,7 +65,7 @@ export default function App({loaderData,}: Route.ComponentProps) {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <div className="navbar-nav d-flex align-items-end">
             <Link to="/" className="nav-item nav-link">Main</Link>
-            {/* {loaderData.log ? 
+            {loaderData.log ? 
             <>
               <Link to="home" className="nav-item nav-link">Home</Link>
               <Link to={`profile/${loaderData.user}`} className="nav-item nav-link">Profile</Link>
@@ -77,7 +77,7 @@ export default function App({loaderData,}: Route.ComponentProps) {
             <>
             <Link to="create" className="nav-item nav-link">Create</Link>
             <Link to="login" className="nav-item nav-link">Login</Link>
-            </>} */}
+            </>}
           </div>
         </div>
       </nav>
@@ -125,31 +125,31 @@ export function HydrateFallback() {
   );
 }
 
-// export async function action({request,}: Route.ActionArgs) {
-//   const session = await getSession(request.headers.get("Cookie"));
+export async function action({request,}: Route.ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
 
-//   return redirect("/login", {
-//     headers: {
-//       "Set-Cookie": await destroySession(session),
-//     },
-//   });
-// }
+  return redirect("/login", {
+    headers: {
+      "Set-Cookie": await destroySession(session),
+    },
+  });
+}
 
-// export async function loader({ request, }: Route.LoaderArgs) {
-//   const result: any = {};
-//   const session = await getSession(request.headers.get("Cookie"));
-//   if (session.has("userID")) {
-//     result.log = true;
-//     result.user = session.get("userID");
-//     return result;
-//   }
-//   return data(
-//     { error: session.get("error") },
-//     {
-//       headers: {
-//         "Set-Cookie": await commitSession(session),
-//       },
-//     }
-//   );
+export async function loader({ request, }: Route.LoaderArgs) {
+  const result: any = {};
+  const session = await getSession(request.headers.get("Cookie"));
+  if (session.has("userID")) {
+    result.log = true;
+    result.user = session.get("userID");
+    return result;
+  }
+  return data(
+    { error: session.get("error") },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 
-// }
+}
