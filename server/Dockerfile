@@ -32,6 +32,6 @@
  #Run the application
  FROM openjdk:17-oracle
  WORKDIR /app
-COPY --from=build /app/target/instako-0.0.1.jar ./instako-0.0.1.jar
+COPY --from=build /app/target/instako-1.1.0.jar ./instako-1.1.0.jar
  EXPOSE 8080
 CMD ["java", "-jar", "instako-0.0.1.jar"]
