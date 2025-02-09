@@ -34,4 +34,4 @@
  WORKDIR /app
 COPY --from=build /app/target/instako-1.1.0.jar ./instako-1.1.0.jar
  EXPOSE 8080
-CMD ["java", "-jar", "instako-0.0.1.jar"]
+CMD ["java", "-jar", "instako-1.1.0.jar"]
