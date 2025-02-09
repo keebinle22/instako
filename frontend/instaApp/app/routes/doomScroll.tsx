@@ -1,6 +1,6 @@
 import { Form, redirect, useFetcher } from "react-router";
 import type { Route } from "../+types/root";
-import { getSession } from "../session/sessions.server";
+import { destroySession, getSession } from "../session/sessions.server";
 import { getProfile, getProfileById } from "./profile";
 import { useEffect, useState } from "react";
 import PostComponent from "../components/post";
@@ -50,69 +50,6 @@ export default function DoomScroll({ loaderData }: Route.ComponentProps){
                             </div>}
                             {posts.map((p: any, idx: number) => {
                                 return (
-                                    // <div key={idx} className="d-flex flex-column align-self-center m-4 w-50">
-                                    //     <div className="d-flex flex-column border border-dark p-2">
-                                    //         {p.userID}
-                                    //     </div>
-                                    //     <img className="align-self-center border-right border-left border-dark" src={"https://kev-insta-bucket.s3.us-east-1.amazonaws.com/" + p.key} alt="bad" />
-                                    //     <div className="d-flex flex-column border border-dark">
-                                    //         <div>
-                                    //         <Form method="POST">
-                                    //             {/* figure out better way to submit postID */}
-                                    //             <input name="post" value={p.postID} hidden readOnly/>
-                                    //             <button type="submit" className="btn btn-secondary" name="like" value={checkIfLiked(p)} style={{color: checkIfLiked(p) ? "pink" : "black"}}>
-                                    //                 <span>&hearts;</span>
-                                    //             </button>
-                                    //             <button type="button" className="btn btn-secondary" onClick={() => handleCommentSection(idx)}>
-                                    //                 <span>&tau;</span>
-                                    //             </button>
-                                    //         </Form>
-                                    //         <small className="pl-2 pt-1">Likes: {p.likes}</small>
-                                    //         </div>
-                                    //         <div className="border-top border-bottom border-dark pl-2 pt-1">
-                                    //             <label className="font-weight-bold">{p.userID}: </label>
-                                    //             <p className="">{p.description ? p.description : ""}</p>
-                                    //         </div>
-                                    //         {curCom === `comment-section-${idx}` && 
-                                    //         <div className="border-bottom border-dark">
-                                    //             <div>
-                                    //                 <div className="font-weight-bold ml-2">Comments:</div>
-                                    //                 <div>
-                                    //                     {
-                                    //                         Object.entries(p.comments).map(([u, s]: [string, any], idx: number) => {
-                                    //                             return (
-                                    //                                 <div key={idx}>
-                                    //                                     {s.map((c: string, i: number) => {
-                                    //                                         return (
-                                    //                                             <div key={i} className="d-flex ml-2">
-                                    //                                                 <small className="font-weight-bold m-1">{u}:</small>
-                                    //                                                 <small className="m-1">{c}</small>
-                                    //                                             </div>
-                                    //                                         )
-                                    //                                     })}
-                                    //                                 </div>
-                                    //                             )
-                                    //                         })
-                                    //                     } 
-                                    //                 </div>
-                                    //                 <div className="ml-2">
-                                    //                     <fetcher.Form method="POST">
-                                    //                         {/* figure out better way to submit postID */}
-                                    //                         <input name="post" value={p.postID} hidden readOnly />
-                                    //                         <input type="text" name="message" onChange={handleCommentChange} value={commentVal} />
-                                    //                         <button type="submit" name="comment">
-                                    //                             <span>&#10003;</span>
-                                    //                         </button>
-                                    //                     </fetcher.Form>
-                                    //                 </div>
-                                    //             </div>
-                                    //         </div>
-                                    //         }
-                                    //         <div className="d-flex">
-                                    //             <small className="pl-2 font-weight-light">{new Date(p.date).toLocaleDateString()}</small>
-                                    //         </div>
-                                    //     </div>
-                                    // </div>
                                     <div key={idx} className="d-flex flex-column align-self-center m-4 w-50">
                                         <PostComponent post={p} idx={idx} curCom={curCom} edit={false} handleEdit={null} fetcher={fetcher} checkIfLiked={checkIfLiked} handleCommentSection={handleCommentSection} handleCommentChange={handleCommentChange} commentVal={commentVal}/>
                                     </div>
@@ -144,8 +81,15 @@ export async function loader({request}: Route.LoaderArgs){
         let posts, error;
         switch (resp.status){
             case 200:
-            posts = await resp.json();
-            break;
+                posts = await resp.json();
+                break;
+            case 401:
+                return redirect("/login", {
+                    headers: {
+                        "Set-Cookie": await destroySession(session),
+                    },
+                });
+                
             default:
                 error = `${resp.status} Status`
                 // throw new Error(`Response Status: ${resp.status}`);
@@ -164,6 +108,13 @@ export async function action({params, request}: Route.ActionArgs){
     const apiURL = process.env.REACT_APP_API_URL;
     const username = session.get("userID");
     const profile = await getProfile(username, token!);
+    if (profile === "401") {
+        return redirect("/login", {
+            headers: {
+                "Set-Cookie": await destroySession(session),
+            },
+        });
+    }
     if (formData.get("like") !== null){
         const url = `${apiURL}/post/update/likes/${profile.userID}`;
         const newLike = formData.get("like") === "true" ? -1 : 1;
@@ -171,7 +122,6 @@ export async function action({params, request}: Route.ActionArgs){
             "postID": formData.get("post"),
             "likes": newLike
         }
-        console.log(body)
         try {
             const resp = await fetch(url, {
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -183,7 +133,7 @@ export async function action({params, request}: Route.ActionArgs){
                     console.log("success like")
                     return;
                 default:
-                    console.log(resp.status);
+                    console.log("like doom" + resp.status);
             }
         } catch (e) {
             console.error(e);
@@ -215,5 +165,4 @@ export async function action({params, request}: Route.ActionArgs){
         }
         return;
     }
-    return;
 }

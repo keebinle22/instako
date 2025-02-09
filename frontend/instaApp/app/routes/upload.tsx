@@ -5,7 +5,7 @@ import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
 import { data, redirect, useFetcher } from "react-router";
 import type { Route } from "../+types/root";
 import { getProfileByUsername } from "./profile";
-import { commitSession, getSession } from "../session/sessions.server";
+import { commitSession, destroySession, getSession } from "../session/sessions.server";
 import { useState } from "react";
 
 export default function UploadFile(){
@@ -62,30 +62,35 @@ export default function UploadFile(){
     )
 }
 
-export async function uploadPost(params: any, token: String) {
+export async function uploadPost(params: any, token: String, file: File) {
     const apiURL = process.env.REACT_APP_API_URL;
     const url = `${apiURL}/post`;
     const body = {
-        "type": params.type,
-        "key": params.key,
-        "likes": 0,
-        "description": params.caption,//
-        "comments": {},
-        "date": new Date().toJSON(),
-        "likedBy": [],
-        "userID": params.user
+        type: params.type,
+        key: params.key,
+        likes: 0,
+        description: params.caption,//
+        comments: {},
+        date: new Date(),
+        likedBy: [],
+        userID: params.user
     }
+    const fd = new FormData();
+    fd.append("image", file);
+    fd.append("post", JSON.stringify(body))
     let result = { ok: "", error: "" };
     try {
         const resp = await fetch(url, {
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`},
+            headers: {"Authorization": `Bearer ${token}`},
             method: "POST",
-            body: JSON.stringify(body)
+            body: fd
         })
         switch (resp.status) {
             case 201:
                 result.ok = "Success";
                 break;
+            case 401:
+                result.error = "401";
             default:
                 result.error = `Resposne status: ${resp.status}`;
         }
@@ -114,47 +119,24 @@ export async function action({request, params}: Route.ActionArgs){
     const session = await getSession(request.headers.get("Cookie"));
     const token = session.get("token");
     const profile = await getProfileByUsername(session.get("userID")!.toString(), token!)
-    const uploadHandler = async (fileUpload: FileUpload) => {
-        if (fileUpload.fieldName === "image"){
-            const client = new S3Client({
-                // credentials: cp.fromIni()
-            });
-            const bucketName = 'kev-insta-bucket';
-            try{
-                var pUpload3 = new Upload({
-                    client: client,
-                    params: {
-                        Bucket: bucketName,
-                        Key: fileUpload.name,
-                        Body: fileUpload.stream()
-                    },
-                    leavePartsOnError: false,
-                })
-                pUpload3.on("httpUploadProgress", (progress) => {
-                    console.log(progress);
-                });
-
-                await pUpload3.done();
-                return fileUpload.name;
-            } catch (e){
-                console.error(e);
-            }
-
-        }
+    if (profile === "401"){
+        return redirect("/login", {
+            headers: {
+                "Set-Cookie": await destroySession(session),
+            },
+        });
     }
-    const formData = await parseFormData(
-        request,
-        uploadHandler
-    );
+    const formData = await request.formData();
     if (formData.get("upload") === null){
         return redirect("/home");
     }
-    const file = formData.get("image");
+    const file = formData.get("image") as File;
     //input image + caption
     //if not .png or .jpeg -> video else image
     let result;
     const caption = String(formData.get("caption"));
-    const key = String(formData.get("image"));
+
+    const key = file.name;
     if (key === "null"){
         return { ok: "", error: "Please upload an image." };
     }
@@ -165,9 +147,7 @@ export async function action({request, params}: Route.ActionArgs){
         type: type,
         user: profile.userID
     }
-    result = await uploadPost(input, token!);
-    if (result?.ok === ''){
-        return result;
-    }
+    
+    result = await uploadPost(input, token!, file);
     return redirect(`/profile/${session.get("userID")}`);
 }

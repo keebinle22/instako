@@ -80,7 +80,6 @@ export async function action({request,}: Route.ActionArgs) {
 
 async function validateCredentials(username: FormDataEntryValue | null, password: FormDataEntryValue | null) {
     const apiURL = process.env.REACT_APP_API_URL;
-    console.log(apiURL)
     const url = `${apiURL}/login`;
     const body = {
         username: username,

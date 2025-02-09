@@ -1,5 +1,6 @@
 package com.insta.InstaApp.service;
 
+import com.insta.InstaApp.aws.Handler;
 import com.insta.InstaApp.model.Post;
 import com.insta.InstaApp.model.User;
 import com.insta.InstaApp.repository.PostRepo;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +109,7 @@ public class PostService {
         return post;
     }
 
-    public Result<Post> addPost(Post post){
+    public Result<Post> addPost(Post post, MultipartFile file){
         Result<Post> result = validate(post);
         if (!result.isSuccess()){
             return result;
@@ -120,6 +122,9 @@ public class PostService {
         Post updatedPost = repo.save(post);
         result.setPayload(updatedPost);
         result.addMessage("Post " + post.getPostID() + " was added to User " + post.getUserID(), ResultType.SUCCESS);
+
+        Handler handler = new Handler();
+        handler.uploadImage(file);
         return result;
     }
 
@@ -219,16 +224,17 @@ public class PostService {
 
     public Result<Post> deletePost(Post target){
         Result<Post> result = new Result<>();
-        ExampleMatcher matcher = ExampleMatcher.matching().withIgnorePaths("type", "key", "likes", "description", "comments", "date", "likedBy", "userID");
-        Example<Post> ex = Example.of(target, matcher);
-        Post deletePost = repo.findBy(ex, FluentQuery.FetchableFluentQuery::oneValue);
+        Post deletePost = repo.findById(target.getPostID()).orElse(null);
         if (deletePost == null){
             result.addMessage("Post " + deletePost.getPostID() + " not found.", ResultType.NOT_FOUND);
         }
         else {
             repo.delete(deletePost);
             result.addMessage("Post " + target.getPostID() + " has been deleted.", ResultType.SUCCESS);
+            Handler handler = new Handler();
+            handler.deleteImage(deletePost.getKey());
         }
+
         return result;
     }
 

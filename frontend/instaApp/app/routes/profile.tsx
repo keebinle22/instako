@@ -3,7 +3,7 @@ import * as cp from "@aws-sdk/credential-providers";
 import { useEffect, useState } from "react";
 import { Link, Outlet, redirect, useFetcher, useNavigate } from "react-router";
 import { getPostById } from "./popup";
-import { getSession } from "../session/sessions.server";
+import { destroySession, getSession } from "../session/sessions.server";
 import type { Route } from "./+types/profile";
 
 
@@ -133,6 +133,8 @@ export async function getProfile(id: any, token: String){
         switch (resp.status){
             case 200:
                 return resp.json();
+            case 401:
+                return "401";
             default:
                 return null;
         }
@@ -153,6 +155,8 @@ export async function getProfileById(id: any, token: String) {
         switch (resp.status) {
             case 200:
                 return resp.json();
+            case 401:
+                return "401";
             default:
                 return null;
         }
@@ -172,6 +176,8 @@ export async function getProfileByUsername(username: String, token: String){
         switch (resp.status) {
             case 200:
                 return resp.json();
+            case 401:
+                return "401";
             default:
                 throw new Error(`Response status: ${resp.status}`);
         }
@@ -190,6 +196,13 @@ export async function loader({params, request}: Route.LoaderArgs){
     
     const token = session.get("token");
     const profile = await getProfile(params.user, token!);
+    if (profile === "401") {
+        return redirect("/login", {
+            headers: {
+                "Set-Cookie": await destroySession(session),
+            },
+        });
+    }
     if (profile === null){
         result.profile = null;
         result.posts = null;
@@ -225,27 +238,17 @@ export async function action({params, request,}: Route.ActionArgs){
     const formData = await request.formData();
     const session = await getSession(request.headers.get("Cookie"));
     const token = session.get("token");
-    console.log("afasdfasdf")
     if (formData.get("delete") !== null){
         let post = await getPostById(formData.get("delete"), token!);
+        if (post === "401") {
+            return redirect("/login", {
+                headers: {
+                    "Set-Cookie": await destroySession(session),
+                },
+            });
+        }
         let result = {ok: "", error: ""};
         //DELETE
-        const client = new S3Client({
-            // credentials: cp.fromIni(),
-        });
-        const bucketName = 'kev-insta-bucket';
-        const input = {
-            Bucket: bucketName,
-            Key: post.key
-        }
-        try{
-            const command = new DeleteObjectCommand(input);
-            await client.send(command);
-        } catch(e){
-            console.error(e);
-            result.error = "Error with deletion.";
-            return result;
-        }
         const apiURL = process.env.REACT_APP_API_URL;
         const url = `${apiURL}/post/delete`;
         const body = {

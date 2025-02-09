@@ -14,4 +14,5 @@ export default defineConfig({
     },
   },
   plugins: [reactRouter(), tsconfigPaths(), netlifyPlugin()],
+  build: {ssr: true}
 });

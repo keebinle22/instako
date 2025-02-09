@@ -1,5 +1,8 @@
 package com.insta.InstaApp.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.insta.InstaApp.aws.Handler;
 import com.insta.InstaApp.service.PostService;
 import com.insta.InstaApp.service.Result;
 import com.insta.InstaApp.service.UserService;
@@ -8,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.util.List;
 @RestController
@@ -40,12 +45,26 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> addPost(@RequestBody Post post){
-        Result<Post> result = postService.addPost(post);
+    public ResponseEntity<Object> addPost(@RequestParam("image")MultipartFile file, @RequestParam("post") String postStr){
+        ObjectMapper om = new ObjectMapper();
+        Post post = null;
+        try {
+            post = om.readValue(postStr, Post.class);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Result<Post> result = postService.addPost(post, file);
         if (!result.isSuccess()){
             return ErrorResponse.build(result);
         }
         return new ResponseEntity<>(result.getPayload(), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/test")
+    public void test(@RequestBody Post post){
+        System.out.println(post);
     }
 
     @PostMapping("/addComment/{userID}")

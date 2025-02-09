@@ -73,7 +73,7 @@ const PostComponent: FC<PostProps> = (props: PostProps) => {
                                     {/* figure out better way to submit postID */}
                                     <input name="post" value={props.post.postID} hidden readOnly />
                                     <input type="text" name="message" onChange={props.handleCommentChange} value={props.commentVal} />
-                                    <button type="submit" name="comment">
+                                    <button type="submit" className="btn btn-secondary m-1" name="comment">
                                         <span>&#10003;</span>
                                     </button>
                                 </props.fetcher.Form>

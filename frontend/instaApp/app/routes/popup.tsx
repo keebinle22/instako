@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Form, redirect, useFetcher, useNavigate, useParams } from "react-router";
 import type { Route } from "../+types/root";
-import { getSession } from "../session/sessions.server";
+import { destroySession, getSession } from "../session/sessions.server";
 import { getProfile } from "./profile";
 import PostComponent from "../components/post";
 
@@ -10,7 +10,6 @@ export default function Popup({loaderData}: Route.ComponentProps){
     let navigate = useNavigate();
     let fetcher = useFetcher();
     const post:any = loaderData.post;
-    const allComments: object= post.comments;
     const [edit, enableEdit] = useState(false);
     const [comment, enableComment] = useState(false);
     const [curCom, setCurCom] = useState("");
@@ -72,7 +71,8 @@ export default function Popup({loaderData}: Route.ComponentProps){
                     </a>
                     <a className="dropdown-item" data-dismiss="modal" data-toggle="modal" data-target="#deletemodal">Delete</a>
                 </div>
-                <PostComponent post={post} idx={0} curCom={curCom} edit={edit}fetcher={fetcher} checkIfLiked={checkIfLiked} handleEdit={handleEdit} handleCommentSection={handleCommentSection} handleCommentChange={handleCommentChange} commentVal={commentVal} />
+                {post === undefined ? <></> : 
+                <PostComponent post={post} idx={0} curCom={curCom} edit={edit}fetcher={fetcher} checkIfLiked={checkIfLiked} handleEdit={handleEdit} handleCommentSection={handleCommentSection} handleCommentChange={handleCommentChange} commentVal={commentVal} /> }
                 {/* <div className="dropdown d-flex justify-content-between border border-dark">
                     <div className="p-auto">
                         <h5 className="ml-2 mt-2">{param.user}</h5>
@@ -160,6 +160,8 @@ export async function getPostById(id: any, token: String){
         switch (resp.status) {
             case 200:
                 return resp.json();
+            case 401:
+                return "401";
             default:
                 console.error(resp.status);
                 // throw new Error(`Response status: ${resp.status}`);
@@ -178,6 +180,13 @@ export async function loader({params, request}: Route.LoaderArgs){
     }
     const token = session.get("token");
     const post = await getPostById(params.page, token!);
+    if (post === "401") {
+        return redirect("/login", {
+            headers: {
+                "Set-Cookie": await destroySession(session),
+            },
+        });
+    }
     const curUser = session.get("userID");
     // const profile = await getProfile(session.get("userID"), token!);
     return {post, curUser};
@@ -189,6 +198,13 @@ export async function action({params, request,}: Route.ActionArgs){
     const token = session.get("token");
     const apiURL = process.env.REACT_APP_API_URL;
     const profile = await getProfile(params.user, token!);
+    if (profile === "401") {
+        return redirect("/login", {
+            headers: {
+                "Set-Cookie": await destroySession(session),
+            },
+        });
+    }
     if (formData.get("comment") !== null){
         const url = `${apiURL}/post/addComment/${profile.userID}`;
         const body = {
@@ -206,7 +222,7 @@ export async function action({params, request,}: Route.ActionArgs){
                     console.log("success add comment");
                     break;
                 default:
-                    console.log(resp.status);
+                    console.log("comment" + resp.status);
             }
             return;
         } catch(e){
@@ -232,7 +248,7 @@ export async function action({params, request,}: Route.ActionArgs){
                     console.log("success like")
                     return;
                 default:
-                    console.log(resp.status);
+                    console.log("like" + resp.status);
             }
         } catch (e){
             console.error(e);
