@@ -4,8 +4,8 @@ import { getSession } from "../session/sessions.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "InstaKO" },
+    { name: "description", content: "Welcome to InstaKO!" },
   ];
 }
 
