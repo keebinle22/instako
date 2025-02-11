@@ -18,7 +18,7 @@ const PostComponent: FC<PostProps> = (props: PostProps) => {
     return(
         <>
             <div className="d-flex flex-column border border-dark p-2">
-                {props.post.userID}
+                <b>{props.post.userID}</b>
             </div>
             <img className="align-self-center border-right border-left border-dark" src={"https://kev-insta-bucket.s3.us-east-1.amazonaws.com/" + props.post.key} alt="bad" />
             <div className="d-flex flex-column border border-dark">

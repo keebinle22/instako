@@ -43,7 +43,7 @@ public class PostService {
              p.setLikedBy(newLikes);
              //changes userID to username in comments. DOES NOT SAVE TO DB
              Map<String, List<String>> comments = p.getComments();
-             Set<String> userIDs = comments.keySet();
+             Set<String> userIDs = Set.copyOf(comments.keySet());
              List<String> temp;
              for (String u : userIDs){
                  temp = comments.get(u);

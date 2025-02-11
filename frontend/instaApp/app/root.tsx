@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossOrigin="anonymous"></link>      
         </head>
-      <body id="root">
+      <body id="root" className="bg-light">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -55,10 +55,10 @@ export default function App({loaderData,}: Route.ComponentProps) {
   return (
     <>
     <div>
-      <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: "#d654d2"}}>
+      <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: "#fc97fa"}}>
         <div>
         </div>
-        <a className="navbar-brand">Instagram Knock Off</a>
+        <Link to="home" className="navbar-brand">Instagram Knock Off</Link>
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
